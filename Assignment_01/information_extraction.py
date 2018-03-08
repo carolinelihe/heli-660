@@ -435,9 +435,9 @@ def answer_question(question_string):
         if 'who' in q_trip.subject.lower():
             answer = '{} likes {}'
             # e_doc = nlp(unicode(q_trip.object))
-            #print(1)
+
             for e in doc.ents:
-                #print(1)
+
                 if e.label_ == 'PERSON':
 
                     person1 = e.text
