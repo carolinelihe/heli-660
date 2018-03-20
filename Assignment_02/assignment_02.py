@@ -1,7 +1,6 @@
-
 # coding: utf-8
 
-# In[ ]:
+# In[160]:
 
 from selenium import webdriver
 from selenium.webdriver.support.select import Select
@@ -20,1004 +19,856 @@ from selenium.webdriver.common.keys import Keys
 import random
 import time
 
-
-# In[ ]:
+# In[161]:
 
 driver = webdriver.Firefox(executable_path=r'/Users/heli/Desktop/geckodriver')
 
-
-# In[ ]:
+# In[162]:
 
 driver.get('http://www.mlb.com')
 
-
-# In[ ]:
+# In[163]:
 
 stats_header_bar = driver.find_element_by_class_name('megamenu-navbar-overflow__menu-item--stats')
 
-
-# In[ ]:
+# In[164]:
 
 stats_header_bar.click()
 
-
-# In[ ]:
+# In[165]:
 
 stats_line_items = stats_header_bar.find_elements_by_tag_name('li')
 
-
-# In[ ]:
+# In[166]:
 
 stats_line_items[0].click()
 
-
-# In[ ]:
+# In[167]:
 
 hitting_season_element = driver.find_element_by_id('sp_hitting_season')
 season_select = Select(hitting_season_element)
 
-
-# In[ ]:
+# In[168]:
 
 season_select.select_by_value('2015')
 
-
-# In[ ]:
+# In[169]:
 
 Team_header_bar = driver.find_element_by_id('st_parent')
 
-
-# In[ ]:
+# In[170]:
 
 Team_header_bar.click()
 
-
-# In[ ]:
+# In[171]:
 
 regular_season = driver.find_element_by_id('st_hitting_game_type')
 season_select = Select(regular_season)
 
-
-# In[ ]:
+# In[172]:
 
 season_select.select_by_visible_text('Regular Season')
 
+# In[173]:
 
-# In[ ]:
-
-data=driver.find_element_by_id('datagrid')
+data = driver.find_element_by_id('datagrid')
 data_html = data.get_attribute('innerHTML')
 
-
-# In[ ]:
+# In[174]:
 
 soup = bs4.BeautifulSoup(data_html, 'html5lib')
 
+# In[175]:
 
-# In[ ]:
+head = [t.text.replace("▼", "") for t in soup.thead.find_all("th")]
 
-head = [t.text.replace("▼","") for t in soup.thead.find_all("th")]
+# In[176]:
 
+df1 = pd.DataFrame(columns=head)
 
-# In[ ]:
-
-df1 = pd.DataFrame(columns = head)
-
-
-# In[ ]:
-
-list = []
-for t in soup.tbody.find_all("tr"):
-    for a in t.find_all("td"):
-        list.append(a.text)
-
-
-# In[ ]:
+# In[177]:
 
 list_b = []
-for i in range(int(len(list)/len(head))):
-    x = list[i*len(head):(i+1)*len(head)]
-    list_b.append(x)
+trs = soup.tbody.find_all("tr")
+for tr in trs:
+    list = []
+    for td in tr:
+        list.append(td.string)
+    print(list)
+    list_b.append(list)
 
-
-# In[ ]:
+# In[182]:
 
 for i in range(30):
     df1.loc[i] = list_b[i]
 
-
 # ### Q1 ###
 
-# In[ ]:
+# In[183]:
 
 df1.to_csv(r'/users/heli/Desktop/hr.csv')
 
-
-# In[ ]:
+# In[184]:
 
 df1
 
+# In[185]:
 
-# In[ ]:
-
-df1.sort_values(by = ['HR'], ascending = False)
-
+df1.sort_values(by=['HR'], ascending=False)
 
 # ## answer 1 ##
 
-# In[ ]:
+# In[186]:
 
-max_hr = df1.iloc[1,1]
+max_hr = df1.iloc[1, 1]
 print(max_hr)
 
-
-# In[ ]:
+# In[187]:
 
 AL_header_bar = driver.find_element_by_xpath('//*[@id="st_hitting-0"]/fieldset[2]/label[2]')
 
-
-# In[ ]:
+# In[188]:
 
 AL_header_bar.click()
 
+# In[189]:
 
-# In[ ]:
-
-data=driver.find_element_by_id('datagrid')
+data = driver.find_element_by_id('datagrid')
 data_html = data.get_attribute('innerHTML')
 
-
-# In[ ]:
+# In[190]:
 
 soup = bs4.BeautifulSoup(data_html, 'html5lib')
 
+# In[191]:
 
-# In[ ]:
+head = [t.text.replace("▼", "") for t in soup.thead.find_all("th")]
 
-head = [t.text.replace("▼","") for t in soup.thead.find_all("th")]
+# In[192]:
 
+df2 = pd.DataFrame(columns=head)
 
-# In[ ]:
-
-df2 = pd.DataFrame(columns = head)
-
-
-# In[ ]:
-
-list = []
-for t in soup.tbody.find_all("tr"):
-    for a in t.find_all("td"):
-        list.append(a.text)
-
-
-# In[ ]:
+# In[193]:
 
 list_b = []
-for i in range(int(len(list)/len(head))):
-    x = list[i*len(head):(i+1)*len(head)]
-    list_b.append(x)
+trs = soup.tbody.find_all("tr")
+for tr in trs:
+    list = []
+    for td in tr:
+        list.append(td.string)
+    print(list)
+    list_b.append(list)
 
-
-# In[ ]:
+# In[194]:
 
 for i in range(15):
     df2.loc[i] = list_b[i]
 
-
-# In[ ]:
+# In[195]:
 
 df2.to_csv(r'/users/heli/Desktop/AL.csv')
 
-
-# In[ ]:
+# In[196]:
 
 df2
 
+# In[197]:
 
-# In[ ]:
+hr_average = pd.DataFrame(df2['HR'], dtype=np.float)
 
-hr_average = pd.DataFrame(df2['HR'],dtype = np.float)
+# In[198]:
 
+print('the average number of AL is', hr_average['HR'].mean())
 
-# In[ ]:
-
-print( 'the average number of AL is',hr_average['HR'].mean())
-
-
-# In[ ]:
+# In[199]:
 
 NL_header_bar = driver.find_element_by_xpath('//*[@id="st_hitting-0"]/fieldset[2]/label[3]/span')
 
-
-# In[ ]:
+# In[200]:
 
 NL_header_bar.click()
 
+# In[201]:
 
-# In[ ]:
-
-data=driver.find_element_by_id('datagrid')
+data = driver.find_element_by_id('datagrid')
 data_html = data.get_attribute('innerHTML')
 
-
-# In[ ]:
+# In[202]:
 
 soup = bs4.BeautifulSoup(data_html, 'html5lib')
 
+# In[203]:
 
-# In[ ]:
+head = [t.text.replace("▼", "") for t in soup.thead.find_all("th")]
 
-head = [t.text.replace("▼","") for t in soup.thead.find_all("th")]
+# In[204]:
 
+df3 = pd.DataFrame(columns=head)
 
-# In[ ]:
-
-df3 = pd.DataFrame(columns = head)
-
-
-# In[ ]:
-
-list = []
-for t in soup.tbody.find_all("tr"):
-    for a in t.find_all("td"):
-        list.append(a.text)
-
-
-# In[ ]:
+# In[205]:
 
 list_b = []
-for i in range(int(len(list)/len(head))):
-    x = list[i*len(head):(i+1)*len(head)]
-    list_b.append(x)
+trs = soup.tbody.find_all("tr")
+for tr in trs:
+    list = []
+    for td in tr:
+        list.append(td.string)
+    print(list)
+    list_b.append(list)
 
-
-# In[ ]:
+# In[206]:
 
 for i in range(15):
     df3.loc[i] = list_b[i]
 
-
-# In[ ]:
+# In[207]:
 
 df3.to_csv(r'/users/heli/Desktop/NL.csv')
 
-
-# In[ ]:
+# In[208]:
 
 df3
 
+# In[209]:
 
-# In[ ]:
+hr2_average = pd.DataFrame(df3['HR'], dtype=np.float)
 
-hr2_average = pd.DataFrame(df3['HR'],dtype = np.float)
+# In[210]:
 
-
-# In[ ]:
-
-print( 'the average number of NL is',hr2_average['HR'].mean())
-
+print('the average number of NL is', hr2_average['HR'].mean())
 
 # ## answer 2 a ##
 
-# In[ ]:
+# In[211]:
 
-if hr_average['HR'].mean() >=  hr2_average['HR'].mean():
-   print ("the greatest average number of American league homeruns is:", hr_average['HR'].mean())
+if hr_average['HR'].mean() >= hr2_average['HR'].mean():
+    print("the greatest average number of American league homeruns is:", hr_average['HR'].mean())
 else:
-   print ("the greatest average number of American league homeruns is:", hr2_average['HR'].mean())
+    print("the greatest average number of American league homeruns is:", hr2_average['HR'].mean())
 
-
-# In[ ]:
+# In[212]:
 
 first_inning = driver.find_element_by_id('st_hitting_hitting_splits')
 first_inning_select = Select(first_inning)
 
-
-# In[ ]:
+# In[213]:
 
 first_inning_select.select_by_visible_text('First Inning')
 
+# In[214]:
 
-# In[ ]:
-
-data=driver.find_element_by_id('datagrid')
+data = driver.find_element_by_id('datagrid')
 data_html = data.get_attribute('innerHTML')
 
-
-# In[ ]:
+# In[215]:
 
 soup = bs4.BeautifulSoup(data_html, 'html5lib')
 
+# In[216]:
 
-# In[ ]:
+head = [t.text.replace("▼", "") for t in soup.thead.find_all("th")]
 
-head = [t.text.replace("▼","") for t in soup.thead.find_all("th")]
+# In[217]:
 
+df4 = pd.DataFrame(columns=head)
 
-# In[ ]:
-
-df4 = pd.DataFrame(columns = head)
-
-
-# In[ ]:
-
-list = []
-for t in soup.tbody.find_all("tr"):
-    for a in t.find_all("td"):
-        list.append(a.text)
-
-
-# In[ ]:
+# In[218]:
 
 list_b = []
-for i in range(int(len(list)/len(head))):
-    x = list[i*len(head):(i+1)*len(head)]
-    list_b.append(x)
+trs = soup.tbody.find_all("tr")
+for tr in trs:
+    list = []
+    for td in tr:
+        list.append(td.string)
+    print(list)
+    list_b.append(list)
 
-
-# In[ ]:
+# In[219]:
 
 for i in range(15):
     df4.loc[i] = list_b[i]
 
-
-# In[ ]:
+# In[220]:
 
 df4.to_csv(r'/users/heli/Desktop/NL_FIRST_Inning.csv')
 
-
-# In[ ]:
+# In[221]:
 
 df4
 
+# In[222]:
 
-# In[ ]:
+hr_inn_average = pd.DataFrame(df4['HR'], dtype=np.float)
 
-hr_inn_average = pd.DataFrame(df4['HR'],dtype = np.float)
+# In[223]:
 
+print('the average number of NL in the first inning is', hr_inn_average['HR'].mean())
 
-# In[ ]:
-
-print( 'the average number of NL in the first inning is',hr_inn_average['HR'].mean())
-
-
-# In[ ]:
+# In[224]:
 
 AL_header_bar = driver.find_element_by_xpath('//*[@id="st_hitting-0"]/fieldset[2]/label[2]')
 
-
-# In[ ]:
+# In[225]:
 
 AL_header_bar.click()
 
+# In[226]:
 
-# In[ ]:
-
-data=driver.find_element_by_id('datagrid')
+data = driver.find_element_by_id('datagrid')
 data_html = data.get_attribute('innerHTML')
 
-
-# In[ ]:
+# In[227]:
 
 soup = bs4.BeautifulSoup(data_html, 'html5lib')
 
+# In[228]:
 
-# In[ ]:
+head = [t.text.replace("▼", "") for t in soup.thead.find_all("th")]
 
-head = [t.text.replace("▼","") for t in soup.thead.find_all("th")]
+# In[229]:
 
+df5 = pd.DataFrame(columns=head)
 
-# In[ ]:
-
-df5 = pd.DataFrame(columns = head)
-
-
-# In[ ]:
-
-list = []
-for t in soup.tbody.find_all("tr"):
-    for a in t.find_all("td"):
-        list.append(a.text)
-
-
-# In[ ]:
+# In[230]:
 
 list_b = []
-for i in range(int(len(list)/len(head))):
-    x = list[i*len(head):(i+1)*len(head)]
-    list_b.append(x)
+trs = soup.tbody.find_all("tr")
+for tr in trs:
+    list = []
+    for td in tr:
+        list.append(td.string)
+    print(list)
+    list_b.append(list)
 
-
-# In[ ]:
+# In[231]:
 
 for i in range(15):
     df5.loc[i] = list_b[i]
 
-
-# In[ ]:
+# In[232]:
 
 df5.to_csv(r'/users/heli/Desktop/AL_FIRST_Inning.csv')
 
-
-# In[ ]:
+# In[233]:
 
 df5
 
+# In[234]:
 
-# In[ ]:
+hr_inn2_average = pd.DataFrame(df5['HR'], dtype=np.float)
 
-hr_inn2_average = pd.DataFrame(df5['HR'],dtype = np.float)
+# In[235]:
 
-
-# In[ ]:
-
-print( 'the average number of AL in the first inning is',hr_inn2_average['HR'].mean())
-
+print('the average number of AL in the first inning is', hr_inn2_average['HR'].mean())
 
 # ## answer 2 b ##
 
-# In[ ]:
+# In[236]:
 
-if hr_inn_average['HR'].mean() >=  hr_inn2_average['HR'].mean():
-   print ("the greatest average number of American league homeruns is:", hr_inn_average['HR'].mean())
+if hr_inn_average['HR'].mean() >= hr_inn2_average['HR'].mean():
+    print("the greatest average number of American league homeruns is:", hr_inn_average['HR'].mean())
 else:
-   print ("the greatest average number of American league homeruns is:", hr_inn2_average['HR'].mean())
+    print("the greatest average number of American league homeruns is:", hr_inn2_average['HR'].mean())
 
+# ## q3 ##
 
-# In[ ]:
+# In[238]:
 
-MLB_header_bar = driver.find_element_by_xpath('//*[@id="st_hitting-0"]/fieldset[2]/label[1]/span')
+MLB_header_bar = driver.find_element_by_xpath(
+    '/html/body/div[2]/div/div[3]/div/div[1]/div[3]/div/div[4]/div/fieldset[2]/label[1]/span')
 
-
-# In[ ]:
+# In[239]:
 
 MLB_header_bar.click()
 
-
-# In[ ]:
+# In[240]:
 
 hitting_season_element = driver.find_element_by_id('st_hitting_season')
 season_select = Select(hitting_season_element)
 
-
-# In[ ]:
+# In[241]:
 
 season_select.select_by_visible_text('2017')
 
-
-# In[ ]:
+# In[242]:
 
 Player_header_bar = driver.find_element_by_id('sp_parent')
 
-
-# In[ ]:
+# In[243]:
 
 Player_header_bar.click()
 
-
-# In[ ]:
+# In[244]:
 
 team_season_element = driver.find_element_by_id('sp_hitting_team_id')
 team_select = Select(team_season_element)
 
-
-# In[ ]:
+# In[245]:
 
 team_select.select_by_visible_text('New York Yankees')
 
-
-# In[ ]:
+# In[246]:
 
 AB_header_bar = driver.find_element_by_xpath('/html/body/div[2]/div/div[3]/div/div[1]/div[8]/table/thead/tr/th[8]/abbr')
 
-
-# In[ ]:
+# In[247]:
 
 AB_header_bar.click()
 
-
-# In[ ]:
+# In[248]:
 
 select = driver.find_element_by_id('sp_hitting_hitting_splits')
 select_split = Select(select)
 
-
-# In[ ]:
+# In[249]:
 
 select_split.select_by_visible_text('Select Split')
 
+# In[250]:
 
-# In[ ]:
-
-data=driver.find_element_by_id('datagrid')
+data = driver.find_element_by_id('datagrid')
 data_html = data.get_attribute('innerHTML')
 
-
-# In[ ]:
+# In[251]:
 
 soup = bs4.BeautifulSoup(data_html, 'html5lib')
 
+# In[252]:
 
-# In[ ]:
+head = [t.text.replace("▼", "") for t in soup.thead.find_all("th")]
+df6 = pd.DataFrame(columns=head)
 
-head = [t.text.replace("▼","") for t in soup.thead.find_all("th")]
-df6=pd.DataFrame(columns=head)
-
-
-# In[ ]:
-
-list = []
-for t in soup.tbody.find_all("tr"):
-    for a in t.find_all("td"):
-        player = a.text.strip()
-        list.append(player)
-
-
-# In[ ]:
+# In[253]:
 
 list_b = []
-for i in range(int(len(list)/len(head))):
-    x = list[i*len(head):(i+1)*len(head)]
-    list_b.append(x)
+trs = soup.tbody.find_all("tr")
+for tr in trs:
+    list = []
+    for td in tr:
+        list.append(td.text)
+    print(list)
+    list_b.append(list)
 
+# In[254]:
 
-# In[ ]:
-
-for i in range(44):
+for i in range(30):
     df6.loc[i] = list_b[i]
 
-
-# In[ ]:
+# In[255]:
 
 df6.to_csv(r'/users/heli/Desktop/AB_bats.csv')
 
-
-# In[ ]:
+# In[256]:
 
 df6
 
-
-# In[ ]:
+# In[257]:
 
 df6.to_csv(r'/users/heli/Desktop/nyy.csv')
 
-
-# In[ ]:
+# In[258]:
 
 read = pd.read_csv(r'/users/heli/Desktop/nyy.csv')
 read
 
+# ## answer 3 A ##
+
+# In[259]:
+
+read.iloc[0, 1]
+print('full-name:', 'Garrett N. Cooper')
+print('position:', read.iloc[0, 6])
 
 # ## answer 3 b ##
 
-# In[ ]:
+# In[260]:
 
-max = 0.0
-for i in range(44):
-        
-        if read.loc[i]['Pos'] == 'RF' or read.loc[i]['Pos'] == 'CF' or read.loc[i]['Pos'] == 'LF':
-            if read.loc[i]['AVG'][1:].isdigit():
-                if float (read.loc[i]['AVG']) >= max:
-                    max = float (read.loc[i]['AVG'])
-                    name = read.loc[i]['Player']
-                    Position = read.loc[i]['Pos']
-print(name,max,Position)            
+select = driver.find_element_by_id('sp_hitting_position')
+select_split = Select(select)
 
+# In[261]:
 
-# In[ ]:
+select_split.select_by_visible_text('RF')
 
-new = df6.sort_values(by = ['AVG'], ascending = False)
-new
+# In[262]:
 
+AVG_header_bar = driver.find_element_by_xpath(
+    '/html/body/div[2]/div/div[3]/div/div[1]/div[8]/table/thead/tr/th[19]/abbr')
 
-# ## answer 3 a ##
+# In[263]:
 
-# In[ ]:
+AVG_header_bar.click()
 
-new.iloc[0,1]
-print('full-name:', 'Garrett N. Cooper')
-print('position:', new.iloc[0,5])
+# In[264]:
 
+data = driver.find_element_by_id('datagrid')
+data_html = data.get_attribute('innerHTML')
+soup = bs4.BeautifulSoup(data_html, 'html5lib')
+head = [t.text.replace("▼", "") for t in soup.thead.find_all("th")]
+df7 = pd.DataFrame(columns=head)
+
+# In[265]:
+
+list_b = []
+trs = soup.tbody.find_all("tr")
+for tr in trs:
+    list = []
+    for td in tr:
+        list.append(td.text)
+    print(list)
+    list_b.append(list)
+
+# In[266]:
+
+for i in range(2):
+    df7.loc[i] = list_b[i]
+
+# In[267]:
+
+df7.to_csv(r'/users/heli/Desktop/RF.csv')
+
+# In[268]:
+
+df7
+
+# In[269]:
+
+select = driver.find_element_by_xpath('//*[@id="sp_hitting_position"]')
+select_split = Select(select)
+
+# In[270]:
+
+select_split.select_by_visible_text('CF')
+
+# In[271]:
+
+AVG_header_bar = driver.find_element_by_xpath(
+    '/html/body/div[2]/div/div[3]/div/div[1]/div[8]/table/thead/tr/th[19]/abbr')
+AVG_header_bar.click()
+
+# In[272]:
+
+data = driver.find_element_by_id('datagrid')
+data_html = data.get_attribute('innerHTML')
+soup = bs4.BeautifulSoup(data_html, 'html5lib')
+head = [t.text.replace("▼", "") for t in soup.thead.find_all("th")]
+df8 = pd.DataFrame(columns=head)
+
+# In[273]:
+
+list_b = []
+trs = soup.tbody.find_all("tr")
+for tr in trs:
+    list = []
+    for td in tr:
+        list.append(td.text)
+    print(list)
+    list_b.append(list)
+
+# In[274]:
+
+for i in range(3):
+    df8.loc[i] = list_b[i]
+
+# In[275]:
+
+df8.to_csv(r'/users/heli/Desktop/CF.csv')
+
+# In[276]:
+
+df8
+
+# In[277]:
+
+select = driver.find_element_by_id('sp_hitting_position')
+select_split = Select(select)
+
+# In[278]:
+
+select_split.select_by_visible_text('LF')
+
+# In[279]:
+
+AVG_header_bar = driver.find_element_by_xpath(
+    '/html/body/div[2]/div/div[3]/div/div[1]/div[8]/table/thead/tr/th[19]/abbr')
+AVG_header_bar.click()
+
+# In[280]:
+
+data = driver.find_element_by_id('datagrid')
+data_html = data.get_attribute('innerHTML')
+soup = bs4.BeautifulSoup(data_html, 'html5lib')
+head = [t.text.replace("▼", "") for t in soup.thead.find_all("th")]
+df9 = pd.DataFrame(columns=head)
+
+# In[281]:
+
+list_b = []
+trs = soup.tbody.find_all("tr")
+for tr in trs:
+    list = []
+    for td in tr:
+        list.append(td.text)
+    print(list)
+    list_b.append(list)
+
+# In[282]:
+
+for i in range(2):
+    df9.loc[i] = list_b[i]
+
+# In[283]:
+
+df9.to_csv(r'/users/heli/Desktop/LF.csv')
+
+# In[284]:
+
+df9
+
+# In[285]:
+
+df9.iloc[0, 1]
+print('full-name:', 'Brett M. Gardner')
+print('position:', df9.iloc[0, 5])
+
+# In[286]:
+
+frames = [df7, df8, df9]
+df10 = pd.concat(frames)
+df10
+
+# In[287]:
+
+df10.to_csv(r'/users/heli/Desktop/concat.csv')
+
+# In[288]:
+
+df10
+
+# In[289]:
+
+df10.iloc[0, 1]
+print('full-name:', 'Aaron James Judg')
+print('position:', df10.iloc[0, 5])
 
 # ## q4 ##
 
-# In[ ]:
+# In[290]:
+
+hitting_pos_element = driver.find_element_by_xpath('//*[@id="sp_hitting_position"]')
+pos_select = Select(hitting_pos_element)
+pos_select.select_by_visible_text('All Positions')
+
+# In[291]:
 
 AL_header_bar = driver.find_element_by_xpath('//*[@id="sp_hitting-1"]/fieldset[1]/label[2]/span')
 
-
-# In[ ]:
+# In[292]:
 
 AL_header_bar.click()
 
-
-# In[ ]:
+# In[293]:
 
 hitting_season_element = driver.find_element_by_xpath('//*[@id="sp_hitting_season"]')
 season_select = Select(hitting_season_element)
 
-
-# In[ ]:
+# In[294]:
 
 season_select.select_by_visible_text('2015')
 
-
-# In[ ]:
+# In[295]:
 
 hitting_team_element = driver.find_element_by_id('sp_hitting_team_id')
 team_select = Select(hitting_team_element)
 
-
-# In[ ]:
+# In[296]:
 
 team_select.select_by_visible_text('All Teams')
 
+# In[297]:
 
-# In[ ]:
+AB_header_bar = driver.find_element_by_xpath('/html/body/div[2]/div/div[3]/div/div[1]/div[8]/table/thead/tr/th[8]/abbr')
+AB_header_bar.click()
 
-import time
-data=driver.find_element_by_id('datagrid')
+# In[298]:
+
+qualifiers_header_bar = driver.find_element_by_xpath(
+    '/html/body/div[2]/div/div[3]/div/div[1]/div[3]/div/div[1]/div[1]/fieldset[5]/label[2]/span')
+qualifiers_header_bar.click()
+
+# In[299]:
+
+data = driver.find_element_by_id('datagrid')
 data_html = data.get_attribute('innerHTML')
 soup = bs4.BeautifulSoup(data_html, 'html5lib')
-head = [t.text.replace("▼","") for t in soup.thead.find_all("th")]
-df7=pd.DataFrame(columns=head)
-for x in range(12):
+head = [t.text.replace("▼", "") for t in soup.thead.find_all("th")]
+df11 = pd.DataFrame(columns=head)
 
-    if x != 0:
-        next_page = driver.find_element_by_class_name('paginationWidget-next')
-        next_page.click()
-        time.sleep(5)
-    data=driver.find_element_by_id('datagrid')
-    data_html = data.get_attribute('innerHTML')
-    soup = bs4.BeautifulSoup(data_html, 'html5lib')
- 
+# In[300]:
+
+list_b = []
+trs = soup.tbody.find_all("tr")
+for tr in trs:
     list = []
-    for t in soup.tbody.find_all("tr"):
-        for a in t.find_all("td"):
-            player = a.text.strip()
-            list.append(player)
-    list_b = []
-    for m in range(int(len(list)/len(head))):
-        n = list[m*len(head):(m+1)*len(head)]
-        list_b.append(n) 
+    for td in tr:
+        list.append(td.text)
     print(list)
-    if x == 11:
-        for i in range(49):
-            df7.loc[x*50+i] = list_b[i]
-    else: 
-        for i in range(50):
-            df7.loc[x*50+i] = list_b[i]
+    list_b.append(list)
 
+# In[301]:
 
-# In[ ]:
+for i in range(50):
+    df11.loc[i] = list_b[i]
 
-df7.to_csv(r'/users/heli/Desktop/q4.csv')
-df7
+# In[302]:
 
+df11.to_csv(r'/users/heli/Desktop/q4.csv')
+
+# In[303]:
+
+df11
 
 # ## answer 4 ##
 
-# In[ ]:
+# In[304]:
 
 name_bar = driver.find_element_by_xpath('/html/body/div[2]/div/div[3]/div/div[1]/div[8]/table/tbody/tr[1]/td[2]/a')
 
-
-# In[ ]:
+# In[305]:
 
 name_bar.click()
 
-
-# In[ ]:
+# In[306]:
 
 name_player = driver.find_element_by_class_name('full-name')
 
-
-# In[ ]:
+# In[307]:
 
 print(name_player.text)
-df7.iloc[0,1]
-print('position:', df7.iloc[0,5])
+df11.iloc[0, 1]
+print('position:', df11.iloc[0, 5])
 
+# In[308]:
 
-# In[ ]:
-
-mouse="var q=document.documentElement.scrollTop=0"  
+mouse = "var q=document.documentElement.scrollTop=0"
 driver.execute_script(mouse)
 
-
-# In[ ]:
+# In[309]:
 
 driver.back()
 
-
 # ## q5 ##
 
-# In[ ]:
+# In[326]:
 
-MLB_header_bar = driver.find_element_by_xpath('/html/body/div[2]/div/div[3]/div/div[1]/div[3]/div/div[1]/div[2]/fieldset[1]/label[1]/span')
+MLB_header_bar = driver.find_element_by_xpath(
+    '/html/body/div[2]/div/div[3]/div/div[1]/div[3]/div/div[1]/div[2]/fieldset[1]/label[1]/span')
 
-
-# In[ ]:
+# In[327]:
 
 MLB_header_bar.click()
 
-
-# In[ ]:
+# In[328]:
 
 hitting_season_element = driver.find_element_by_class_name('season_select')
 season_select = Select(hitting_season_element)
 
-
-# In[ ]:
+# In[329]:
 
 season_select.select_by_visible_text('2014')
 
+# In[330]:
 
-# In[ ]:
-
-#MLB_header_bar = driver.find_element_by_class_name('ui-button-text')
-
-
-# In[ ]:
-
-#MLB_header_bar.click()
+# MLB_header_bar = driver.find_element_by_class_name('ui-button-text')
 
 
-# In[ ]:
+# In[331]:
+
+# MLB_header_bar.click()
+
+
+# In[332]:
 
 re_season_element = driver.find_element_by_id('sp_hitting_game_type')
 re_select = Select(re_season_element)
 
-
-# In[ ]:
+# In[333]:
 
 re_select.select_by_visible_text('All-Star Game')
 
+# In[334]:
 
-# In[ ]:
-
-latin_coun ='''Argentina;Bolivia;Brazil;Chile;Colombia;Costa Rica;Cuba;Dominican Republic;Ecuador;El Salvador;French Guiana;Guadeloupe;Guatemala;Haiti;Honduras;Martinique;Mexico;Nicaragua;Panama;Paraguay;Peru;Puerto Rico;Saint Barthélemy;Saint Martin;Uruguay;Venezuela'''
+latin_coun = '''Argentina;Bolivia;Brazil;Chile;Colombia;Costa Rica;Cuba;Dominican Republic;Ecuador;El Salvador;French Guiana;Guadeloupe;Guatemala;Haiti;Honduras;Martinique;Mexico;Nicaragua;Panama;Paraguay;Peru;Puerto Rico;Saint Barthélemy;Saint Martin;Uruguay;Venezuela'''
 latin_list = latin_coun.split(';')
 
-
-# In[ ]:
+# In[335]:
 
 print(latin_list)
 
+# In[336]:
 
-# In[ ]:
-
-data=driver.find_element_by_id('datagrid')
+data = driver.find_element_by_id('datagrid')
 data_html = data.get_attribute('innerHTML')
 
-
-# In[ ]:
+# In[337]:
 
 soup = bs4.BeautifulSoup(data_html, 'html5lib')
 
+# In[338]:
 
-# In[ ]:
+head = [t.text.replace("▼", "") for t in soup.thead.find_all("th")]
+df12 = pd.DataFrame(columns=head)
 
-head = [t.text.replace("▼","") for t in soup.thead.find_all("th")]
-df8=pd.DataFrame(columns=head)
-
-
-# In[ ]:
-
-list = []
-for t in soup.tbody.find_all("tr"):
-    for a in t.find_all("td"):
-        player = a.text.strip()
-        list.append(player)
-
-
-# In[ ]:
+# In[339]:
 
 list_b = []
-for i in range(int(len(list)/len(head))):
-    x = list[i*len(head):(i+1)*len(head)]
-    list_b.append(x)
-    
+trs = soup.tbody.find_all("tr")
+for tr in trs:
+    list = []
+    for td in tr:
+        list.append(td.text)
+    print(list)
+    list_b.append(list)
 
-
-# In[ ]:
+# In[340]:
 
 for i in range(41):
-    df8.loc[i] = list_b[i]
+    df12.loc[i] = list_b[i]
 
+# In[341]:
 
-# In[ ]:
+df12.to_csv(r'/users/heli/Desktop/q5.csv')
+df12
 
-df8.to_csv(r'/users/heli/Desktop/AB_bats.csv')
-df8
-
-
-# In[ ]:
-
-w_list = df8['Player']
-player_list =[]
-for i in range(41):
-    player_list.append(w_list[i]) 
-    
-name_list=set(player_list)
-name_list
-
-
-# In[ ]:
+# In[342]:
 
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-
-# In[ ]:
-
-wait = WebDriverWait(driver, 10)
-q5 = []
-for name in name_list:     
-        player_bar = driver.find_elements_by_link_text(name)
-        for e in range(len(player_bar)):
-            
-            print(name)
-            time.sleep(3)
-            player_bar_temp = driver.find_elements_by_link_text(name)
-            player_bar_temp[k].click()
-            player_bio = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, 'player-bio')))
-
-        
-            
-            for country in latin_list:
-                if country in player_bio.text:
-                                        
-                                        player_name = driver.find_element_by_class_name('full-name').text
-                                        datahtml= wait.until(EC.visibility_of_element_located((By.CLASS_NAME, 'dropdown.team'))).text
-                                        team_name = datahtml.split('\n')[0].strip()
-                                        print('player_name:',player_name)
-                                        q5.append(player_name)
-                                        print('team_name:', team_name)
-                                        q5.append(team_name)
-
-
-            
-            time.sleep(5)
-            driver.back()
-
-
-# In[ ]:
-
-q5
-
-
-# In[ ]:
-
-head_q5 = ['Player', 'Team']
-pd_q5 = pd.DataFrame(columns= head_q5)
-
-
-# In[ ]:
-
-q5_format = []
-for i in range(int(len(q5)/len(head_q5))):
-    q5_format.append(q5[i*len(head_q5) : (i+1) * len(head_q5)])
-    
-for q in range(16):
-    pd_q5.loc[q] = q5_format[q]
-    
-pd_q5
-
-
-# In[ ]:
-
-pd_q5.to_csv(r'/users/heli/Desktop/q5.csv')
-pd_q5
-
-
-# ## answer q5 ##
-
-# In[ ]:
-
-print(pd_q5)
-
-
 # ## q6 ##
 
-# In[206]:
+# In[343]:
 
 import http.client, urllib.request, urllib.parse, urllib.error, base64
 
-
-# In[207]:
+# In[344]:
 
 import json
 
 
-# In[212]:
+# In[345]:
 
 def api(html):
     headers = {
-    # Request headers
-    'Ocp-Apim-Subscription-Key': '50dd039638564f8687b0961e2df52ed7',
-}
+        # Request headers
+        'Ocp-Apim-Subscription-Key': '50dd039638564f8687b0961e2df52ed7',
+    }
     conn = http.client.HTTPSConnection('api.fantasydata.net')
     conn.request("GET", html, "{body}", headers)
     response = conn.getresponse()
     data = response.read()
     conn.close
     return data
-
-
-# In[213]:
-
-stats_stadium = api("/v3/mlb/stats/json/Stadiums")
-time.sleep(4)
-stats_stadium = json.loads(stats_stadium)
-stats_stadium
-
-
-# In[214]:
-
-match_list = []
-for i in stats_stadium:
-    match_list.append([i["StadiumID"], i["Name"], i["City"], i["State"]])
-    
-match_list
-    
-
-
-# In[215]:
-
-stats_game = json.loads(api("/v3/mlb/stats/json/Games/2016"))
-stats_game
-
-
-# In[216]:
-
-game_list = []
-for i in stats_game:
-    game_list.append([i["HomeTeam"], i["AwayTeam"], i["DateTime"][0:10], i["StadiumID"]])
-    
-game_list
-
-
-# In[217]:
-
-general_list = []
-
-for i in match_list:
-    for j in game_list:
-        if i[0] == j[3]:
-            temp = j[:-1]+i[1:]
-            general_list.append(temp)
-            
-general_list
-
-
-# In[218]:
-
-data_q6 = []
-for a in general_list:
-    
-    if 'HOU' in a:
-        
-        data_q6.append(a)
-    
-        
-data_q6
-
-
-# In[219]:
-
-df_q6 = pd.DataFrame(columns= ['Home Team', 'Away Team', 'Date', 'Stadium Name', 'City', 'State'])
-
-for i in range(len(data_q6)):
-    df_q6.loc[i] = data_q6[i]
-    
-df_q6
-
-
-# In[220]:
-
-df_q6.to_csv('D:\BIA-660D\Q_6.csv')
-
 
 # In[ ]:
 
